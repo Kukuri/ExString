@@ -4,11 +4,8 @@ unix 系は utf-8 が標準になっているのであまり必要性は感じない。
 */
 
 #pragma once
-//#include "stdafx.h"
 #include <Windows.h>
-//#include <tchar.h>
 #include <string>
-//#include <string.h>
 #include <vector>
 #include <locale>
 #include <algorithm>
