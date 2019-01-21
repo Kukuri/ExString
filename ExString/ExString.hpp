@@ -238,50 +238,6 @@ namespace ExString
 		int len = MultiByteToWideChar(nCodePage, MB_PRECOMPOSED, str, -1, wc, bufsize);
 		wc[bufsize] = NULL;
 		return wc;
-
-		//CA2W w(str, nCodePage);
-		//return _wcsdup(w);
-		//		if (isUtf8) {
-		//			std::wstring ws = ToStdWString(str);
-		//			return ToWchar_t(ws);
-		//		}
-		//#ifdef _WIN32
-		//		//utf8の場合、ラップすると文字化けする。
-		//		//auto codePage = isUtf8 ? CP_UTF8 : CP_ACP;
-		//		int bufsize = MultiByteToWideChar(
-		//			CP_ACP,       // コードページ
-		//			MB_PRECOMPOSED, // 文字の種類を指定するフラグ
-		//			str,			// マップ元文字列のアドレス
-		//			-1,				// ?1 を指定すると、文字列は NULL で終わっていると見なされ、長さが自動的に計算されます。
-		//			NULL,			// マップ先ワイド文字列を入れるバッファのアドレス
-		//			0				// 0 を指定すると、必要なバッファのサイズ（ワイド文字数）が返り、lpWideCharStr が指すバッファは使われません。
-		//		);
-		//		wchar_t* wc = new wchar_t[bufsize];
-		//		int len = MultiByteToWideChar(
-		//			CP_ACP,				// コードページ
-		//			MB_PRECOMPOSED,         // 文字の種類を指定するフラグ
-		//			str,					// マップ元文字列のアドレス
-		//			-1,						// マップ元文字列のバイト数
-		//			wc,						// マップ先ワイド文字列を入れるバッファのアドレス
-		//			bufsize					// バッファのサイズ
-		//		);
-		//		wc[bufsize - 1] = NULL;		//これ入れんとごみが出る。
-		//		return wc;
-		//#else
-		//		std::wstring_convert<std::codecvt<wchar_t, char, std::mbstate_t>>
-		//			cvt(new std::codecvt_byname<wchar_t, char, std::mbstate_t>(""));
-		//		auto ws = cvt.from_bytes(str);
-		//		return ToWchar_t(ws);
-		//
-		//		//std::mbstate_t state = std::mbstate_t();
-		//		//int len = 1 + std::mbsrtowcs(NULL, &str, 0, &state);
-		//		//wchar_t* wc = new wchar_t[len];
-		//		//std::mbsrtowcs(wc, &str, len, &state);
-		//		//return wc;
-		//		//wchar_t* wc = new wchar_t[len + 1];
-		//		//size_t converted = 0;
-		//		//mbstowcs_s(&converted, wc, len + 1, str, _TRUNCATE);
-		//#endif
 	}
 	/// <summary>std::string から wchar_t* へ変換</summary>
 	/// <param name="str">変換する std::string</param>
@@ -361,15 +317,6 @@ namespace ExString
 	/// <returns>converted std::wstring</returns>
 	std::wstring ToStdWString(const char* str, UINT nCodePage = CP_ACP) {
 		return std::wstring(CA2W(str, nCodePage));
-		//if (isUtf8) {
-		//	std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> utf8conv;
-		//	return utf8conv.from_bytes(str);
-		//}
-		//else {
-		//	std::wstring_convert<std::codecvt<wchar_t, char, std::mbstate_t>>
-		//		cvt(new std::codecvt_byname<wchar_t, char, std::mbstate_t>(""));
-		//	return cvt.from_bytes(str);
-		//}
 	}
 	/// <summary>std::string から std::wstring へ変換</summary>
 	/// <param name="str">変換する std::string</param>
@@ -377,15 +324,6 @@ namespace ExString
 	/// <returns>converted std::wstring</returns>
 	std::wstring ToStdWString(const std::string& str, UINT nCodePage = CP_ACP) {
 		return std::wstring(CA2W(str.c_str(), nCodePage));
-		//if (isUtf8) {
-		//	std::wstring_convert<std::codecvt_utf8<wchar_t>> utf8conv;
-		//	return utf8conv.from_bytes(str);
-		//}
-		//else {
-		//	std::wstring_convert<std::codecvt<wchar_t, char, std::mbstate_t>>
-		//		cvt(new std::codecvt_byname<wchar_t, char, std::mbstate_t>(""));
-		//	return cvt.from_bytes(str);
-		//}
 	}
 	/// <summary>wchar_t* から std::wstring へ変換</summary>
 	/// <param name="str">変換する wchar_t*</param>
@@ -396,21 +334,6 @@ namespace ExString
 	std::wstring ToStdWString(const std::wstring& str) {
 		return str;	//copy
 	}
-	/// <summary>CString から std::wstring へ変換</summary>
-	/// <param name="str">変換する CString</param>
-	/// <param name="nCodePage">変換後のコードページ</param>
-	/// <returns>converted std::wstring</returns>
-	//static std::wstring ToStdWString(const CString& str) {
-	//	return std::wstring(CT2W((LPCTSTR)str));
-	//}
-
-	//wchar_t* と被るのでボツ
-	//static std::wstring ToStdWString(const BSTR str) {
-	//	auto w = ToWchar_t(str);
-	//	std::wstring ws(w);
-	//	delete[] w;
-	//	return ws;
-	//}
 	std::wstring ToStdWString(const _bstr_t& str) {
 		return std::wstring((LPCWSTR)str, str.length());
 	}
