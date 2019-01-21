@@ -140,21 +140,21 @@ namespace ExString
 	}
 #pragma endregion
 
-#pragma region ToStdString
+#pragma region ToString
 	/// <summary>char* から std::string へ変換</summary>
 	/// <param name="str">変換する char*</param>
 	/// <returns>converted std::string</returns>
-	std::string ToStdString(const char* str) {
+	std::string ToString(const char* str) {
 		return std::string(str);
 	}
-	std::string ToStdString(const std::string& str) {
+	std::string ToString(const std::string& str) {
 		return str;	//copy
 	}
 	/// <summary>wchar_t* から std::string へ変換</summary>
 	/// <param name="str">変換する wchar_t*</param>
 	/// <param name="nCodePage">変換後のコードページ</param>
 	/// <returns>converted std::string</returns>
-	std::string ToStdString(const wchar_t* str, UINT nCodePage = CP_ACP) {
+	std::string ToString(const wchar_t* str, UINT nCodePage = CP_ACP) {
 		CW2A a(str, nCodePage);
 		return std::string(a);
 		//if (isUtf8) {
@@ -169,7 +169,7 @@ namespace ExString
 	/// <param name="str">変換する std::wstring</param>
 	/// <param name="nCodePage">変換後のコードページ</param>
 	/// <returns>converted std::string</returns>
-	std::string ToStdString(const std::wstring& str, UINT nCodePage = CP_ACP) {
+	std::string ToString(const std::wstring& str, UINT nCodePage = CP_ACP) {
 		CW2A a(str.c_str(), nCodePage);
 		return std::string(a);
 		//if (isUtf8) {
@@ -184,21 +184,21 @@ namespace ExString
 	/// <param name="str">変換する CString</param>
 	/// <param name="nCodePage">変換後のコードページ</param>
 	/// <returns>converted std::string</returns>
-	//static std::string ToStdString(const CString& str, UINT nCodePage = CP_ACP) {
+	//static std::string ToString(const CString& str, UINT nCodePage = CP_ACP) {
 	//	CT2A a(str, nCodePage);
 	//	return std::string(a);
 	//}
 
-	std::string ToStdString(const BSTR str) {
+	std::string ToString(const BSTR str) {
 		auto c = _com_util::ConvertBSTRToString(str);
 		std::string s(c);
 		delete[] c;
 		return s;
 	}
-	std::string ToStdString(const _bstr_t& str) {
+	std::string ToString(const _bstr_t& str) {
 		return std::string((const char*)str);
 	}
-	std::string ToStdString(const CComBSTR& str) {
+	std::string ToString(const CComBSTR& str) {
 		return std::string(CW2A(str));
 	}
 	/// <summary>コードページの変換</summary>
@@ -224,12 +224,12 @@ namespace ExString
 	}
 #pragma endregion
 
-#pragma region ToWchar_t
+#pragma region ToWChar
 	/// <summary>char* から wchar_t* へ変換</summary>
 	/// <param name="str">変換する char*</param>
 	/// <param name="nCodePage">変換元のコードページ</param>
 	/// <returns>converted wchar_t*</returns>
-	wchar_t* ToWchar_t(const char* str, UINT nCodePage = CP_ACP) {
+	wchar_t* ToWChar(const char* str, UINT nCodePage = CP_ACP) {
 		if (str == NULL) {
 			throw std::invalid_argument("str is null pointer!!");
 		}
@@ -243,10 +243,10 @@ namespace ExString
 	/// <param name="str">変換する std::string</param>
 	/// <param name="nCodePage">変換元のコードページ</param>
 	/// <returns>converted wchar_t*</returns>
-	wchar_t* ToWchar_t(const std::string& str, UINT nCodePage = CP_ACP) {
-		return ToWchar_t(str.c_str(), nCodePage);
+	wchar_t* ToWChar(const std::string& str, UINT nCodePage = CP_ACP) {
+		return ToWChar(str.c_str(), nCodePage);
 	}
-	wchar_t* ToWchar_t(const wchar_t* str, size_t size = 0) {
+	wchar_t* ToWChar(const wchar_t* str, size_t size = 0) {
 		if (str == NULL) {
 			throw std::invalid_argument("str is null pointer!!");
 		}
@@ -263,86 +263,86 @@ namespace ExString
 	/// <summary>std::wstring から wchar_t* へ変換</summary>
 	/// <param name="str">変換する std::wstring</param>
 	/// <returns>converted wchar_t*</returns>
-	wchar_t* ToWchar_t(const std::wstring& str) {
-		return ToWchar_t(str.c_str(), str.size());
+	wchar_t* ToWChar(const std::wstring& str) {
+		return ToWChar(str.c_str(), str.size());
 
 		//こっちは free で解放しないと駄目なので、没。
 		//return _wcsdup(str.c_str());
 	}
-	wchar_t* ToWchar_t(const BSTR str) {
-		return ToWchar_t((const wchar_t*)str, SysStringLen(str));
+	wchar_t* ToWChar(const BSTR str) {
+		return ToWChar((const wchar_t*)str, SysStringLen(str));
 	}
-	wchar_t* ToWchar_t(const _bstr_t& str) {
-		return ToWchar_t((const wchar_t*)str);
+	wchar_t* ToWChar(const _bstr_t& str) {
+		return ToWChar((const wchar_t*)str);
 	}
-	wchar_t* ToWchar_t(const CComBSTR& str) {
-		return ToWchar_t((const wchar_t*)str);
+	wchar_t* ToWChar(const CComBSTR& str) {
+		return ToWChar((const wchar_t*)str);
 	}
 
 	std::unique_ptr<wchar_t[]>
-		toWchar_t(const char* str, UINT nCodePage = CP_ACP) {
-		return std::unique_ptr<wchar_t[]>(ToWchar_t(str, nCodePage));
+		toWChar(const char* str, UINT nCodePage = CP_ACP) {
+		return std::unique_ptr<wchar_t[]>(ToWChar(str, nCodePage));
 	}
 	std::unique_ptr<wchar_t[]>
-		toWchar_t(const std::string& str, UINT nCodePage = CP_ACP) {
-		std::unique_ptr<wchar_t[]> wc(ToWchar_t(str.c_str(), nCodePage));
+		toWChar(const std::string& str, UINT nCodePage = CP_ACP) {
+		std::unique_ptr<wchar_t[]> wc(ToWChar(str.c_str(), nCodePage));
 		return wc;
 	}
 	std::unique_ptr<wchar_t[]>
-		toWchar_t(const wchar_t* str, size_t size = 0) {
-		std::unique_ptr<wchar_t[]> wc(ToWchar_t(str, size));
+		toWChar(const wchar_t* str, size_t size = 0) {
+		std::unique_ptr<wchar_t[]> wc(ToWChar(str, size));
 		return wc;
 	}
 	std::unique_ptr<wchar_t[]>
-		toWchar_t(const std::wstring& str) {
-		std::unique_ptr<wchar_t[]> wc(ToWchar_t(str.c_str(), str.size()));
+		toWChar(const std::wstring& str) {
+		std::unique_ptr<wchar_t[]> wc(ToWChar(str.c_str(), str.size()));
 		return wc;
 
 	}
-	std::unique_ptr<wchar_t[]> toWchar_t(const BSTR str) {
-		return std::unique_ptr<wchar_t[]>(ToWchar_t(str));
+	std::unique_ptr<wchar_t[]> toWChar(const BSTR str) {
+		return std::unique_ptr<wchar_t[]>(ToWChar(str));
 	}
-	std::unique_ptr<wchar_t[]> toWchar_t(const _bstr_t& str) {
-		return toWchar_t((LPCWSTR)str, str.length());
+	std::unique_ptr<wchar_t[]> toWChar(const _bstr_t& str) {
+		return toWChar((LPCWSTR)str, str.length());
 	}
-	std::unique_ptr<wchar_t[]> toWchar_t(const CComBSTR& str) {
-		return toWchar_t((LPCWSTR)str, str.Length());
+	std::unique_ptr<wchar_t[]> toWChar(const CComBSTR& str) {
+		return toWChar((LPCWSTR)str, str.Length());
 	}
 #pragma endregion
 
-#pragma region ToStdWString
+#pragma region ToWString
 	/// <summary>char* から std::wstring へ変換</summary>
 	/// <param name="str">変換する char*</param>
 	/// <param name="nCodePage">変換元のコードページ</param>
 	/// <returns>converted std::wstring</returns>
-	std::wstring ToStdWString(const char* str, UINT nCodePage = CP_ACP) {
+	std::wstring ToWString(const char* str, UINT nCodePage = CP_ACP) {
 		return std::wstring(CA2W(str, nCodePage));
 	}
 	/// <summary>std::string から std::wstring へ変換</summary>
 	/// <param name="str">変換する std::string</param>
 	/// <param name="nCodePage">変換元のコードページ</param>
 	/// <returns>converted std::wstring</returns>
-	std::wstring ToStdWString(const std::string& str, UINT nCodePage = CP_ACP) {
+	std::wstring ToWString(const std::string& str, UINT nCodePage = CP_ACP) {
 		return std::wstring(CA2W(str.c_str(), nCodePage));
 	}
 	/// <summary>wchar_t* から std::wstring へ変換</summary>
 	/// <param name="str">変換する wchar_t*</param>
 	/// <returns>converted std::wstring</returns>
-	std::wstring ToStdWString(const wchar_t* str) {
+	std::wstring ToWString(const wchar_t* str) {
 		return std::wstring(str);
 	}
-	std::wstring ToStdWString(const std::wstring& str) {
+	std::wstring ToWString(const std::wstring& str) {
 		return str;	//copy
 	}
-	std::wstring ToStdWString(const _bstr_t& str) {
+	std::wstring ToWString(const _bstr_t& str) {
 		return std::wstring((LPCWSTR)str, str.length());
 	}
-	std::wstring ToStdWString(const CComBSTR& str) {
+	std::wstring ToWString(const CComBSTR& str) {
 		return std::wstring((LPCWSTR)str, str.Length());
 	}
 
 	std::vector<std::wstring>
-		ToStdWString(const std::vector<std::string>& vs, UINT nCodePage = CP_ACP) {
+		ToWString(const std::vector<std::string>& vs, UINT nCodePage = CP_ACP) {
 		std::vector<std::wstring> vw;
 		vw.reserve(vs.size());
 
@@ -354,14 +354,14 @@ namespace ExString
 	}
 #pragma endregion
 
-#pragma region ToTchar
+#pragma region ToTChar
 	/// <summary>char* から TCHAR* へ変換</summary>
 	/// <param name="str">変換する char*</param>
 	/// <param name="nCodePage">変換元のコードページ</param>
 	/// <returns>converted TCHAR*</returns>
-	TCHAR* ToTchar(const char* str, UINT nCodePage = CP_ACP) {
+	TCHAR* ToTChar(const char* str, UINT nCodePage = CP_ACP) {
 #ifdef UNICODE
-		return ToWchar_t(str, nCodePage);
+		return ToWChar(str, nCodePage);
 #else
 		return ToChar(str);
 #endif
@@ -370,9 +370,9 @@ namespace ExString
 	/// <param name="str">変換する std::string</param>
 	/// <param name="nCodePage">変換元のコードページ</param>
 	/// <returns>converted TCHAR*</returns>
-	TCHAR* ToTchar(const std::string& str, UINT nCodePage = CP_ACP) {
+	TCHAR* ToTChar(const std::string& str, UINT nCodePage = CP_ACP) {
 #ifdef UNICODE
-		return ToWchar_t(str.c_str(), nCodePage);
+		return ToWChar(str.c_str(), nCodePage);
 #else
 		return ToChar(str.c_str());
 #endif
@@ -381,9 +381,9 @@ namespace ExString
 	/// <param name="str">変換する wchar_t*</param>
 	/// <param name="nCodePage">変換後のコードページ</param>
 	/// <returns>converted TCHAR*</returns>
-	TCHAR* ToTchar(const wchar_t* str, UINT nCodePage = CP_ACP) {
+	TCHAR* ToTChar(const wchar_t* str, UINT nCodePage = CP_ACP) {
 #ifdef UNICODE
-		return ToWchar_t(str);
+		return ToWChar(str);
 #else
 		return ToChar(str, nCodePage);
 #endif
@@ -392,37 +392,42 @@ namespace ExString
 	/// <param name="str">変換する std::wstring</param>
 	/// <param name="nCodePage">変換後のコードページ</param>
 	/// <returns>converted TCHAR*</returns>
-	TCHAR* ToTchar(const std::wstring& str, UINT nCodePage = CP_ACP) {
+	TCHAR* ToTChar(const std::wstring& str, UINT nCodePage = CP_ACP) {
 #ifdef UNICODE
-		return ToWchar_t(str.c_str());
+		return ToWChar(str.c_str());
 #else
 		return ToChar(str, nCodePage);
 #endif
 	}
-	TCHAR* ToTchar(const _bstr_t& str, UINT nCodePage = CP_ACP) {
-		return ToTchar((LPCTSTR)str, nCodePage);
+	TCHAR* ToTChar(const _bstr_t& str, UINT nCodePage = CP_ACP) {
+		return ToTChar((LPCTSTR)str, nCodePage);
 	}
 
 	std::unique_ptr<TCHAR[]>
-		toTchar(const char* str, UINT nCodePage = CP_ACP) {
-		std::unique_ptr<TCHAR[]> tc(ToTchar(str, nCodePage));
+		toTChar(const char* str, UINT nCodePage = CP_ACP) {
+		std::unique_ptr<TCHAR[]> tc(ToTChar(str, nCodePage));
 		return tc;
 	}
 	std::unique_ptr<TCHAR[]>
-		toTchar(const std::string& str, UINT nCodePage = CP_ACP) {
-		std::unique_ptr<TCHAR[]> tc(ToTchar(str.c_str(), nCodePage));
+		toTChar(const std::string& str, UINT nCodePage = CP_ACP) {
+		std::unique_ptr<TCHAR[]> tc(ToTChar(str.c_str(), nCodePage));
 		return tc;
 	}
 	std::unique_ptr<TCHAR[]>
-		toTchar(const wchar_t* str, UINT nCodePage = CP_ACP) {
-		std::unique_ptr<TCHAR[]> tc(ToTchar(str, nCodePage));
+		toTChar(const wchar_t* str, UINT nCodePage = CP_ACP) {
+		std::unique_ptr<TCHAR[]> tc(ToTChar(str, nCodePage));
 		return tc;
 	}
 	std::unique_ptr<TCHAR[]>
-		toTchar(const std::wstring& str, UINT nCodePage = CP_ACP) {
-		std::unique_ptr<TCHAR[]> tc(ToTchar(str.c_str(), nCodePage));
+		toTChar(const std::wstring& str, UINT nCodePage = CP_ACP) {
+		std::unique_ptr<TCHAR[]> tc(ToTChar(str.c_str(), nCodePage));
 		return tc;
 	}
+	std::unique_ptr<TCHAR[]>
+		toTChar(const _bstr_t& str, UINT nCodePage = CP_ACP) {
+		return toTChar((LPCTSTR)str, nCodePage);
+	}
+
 #pragma endregion
 
 #pragma region ToCString
