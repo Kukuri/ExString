@@ -15,6 +15,7 @@ unix 系は utf-8 が標準になっているのであまり必要性は感じない。
 #include <atlconv.h>
 #include <comutil.h>
 #include <atlbase.h>
+//#include <afxcoll.h>
 
 #pragma comment(lib, "comsuppw.lib")  
 #pragma comment(lib, "kernel32.lib")  
@@ -538,6 +539,38 @@ namespace ExString
 	}
 #pragma endregion
 
+#pragma region Trim
+	// trim from start (in place)
+	inline void LTrim(std::string& s, std::locale& loc = std::locale("")) {
+		auto f = [&](const char c) { return !std::isspace(c, loc); };
+		s.erase(s.begin(), std::find_if(s.begin(), s.end(), f));
+	}
+	inline void LTrim(std::wstring& s) {
+		auto f = [&](const wchar_t c) { return !std::iswspace(c); };
+		s.erase(s.begin(), std::find_if(s.begin(), s.end(), f));
+	}
+
+	// trim from end (in place)
+	inline void RTrim(std::string& s, std::locale& loc = std::locale("")) {
+		auto f = [&](const char c) { return !std::isspace(c, loc); };
+		s.erase(std::find_if(s.rbegin(), s.rend(), f).base(), s.end());
+	}
+	inline void RTrim(std::wstring& s/*, std::locale &loc = std::locale("")*/) {
+		auto f = [&](const wchar_t c) { return !std::iswspace(c); };
+		s.erase(std::find_if(s.rbegin(), s.rend(), f).base(), s.end());
+	}
+
+	// trim from both ends (in place)
+	inline void Trim(std::string& s, std::locale& loc = std::locale("")) {
+		LTrim(s, loc);
+		RTrim(s, loc);
+	}
+	inline void Trim(std::wstring& s/*, std::locale &loc = std::locale("")*/) {
+		LTrim(s);
+		RTrim(s);
+	}
+#pragma endregion
+
 #pragma region Split
 	/// <summary>文字列分割</summary>
 	/// <param name="s">文字列</param>
@@ -553,6 +586,7 @@ namespace ExString
 		std::string item;
 		for (char ch : s) {
 			if (ch == delim) {
+				Trim(item);
 				if (is_skip && item.empty())
 					continue;
 				elems.push_back(item);
@@ -575,6 +609,7 @@ namespace ExString
 		std::wstring item;
 		for (wchar_t ch : s) {
 			if (ch == delim) {
+				Trim(item);
 				if (is_skip && item.empty())
 					continue;
 				elems.push_back(item);
@@ -609,8 +644,13 @@ namespace ExString
 		size_t p1 = 0;
 		if (is_string) {
 			for (size_t p2 = s.find(delim); p2 != s.npos; p2 = s.find(delim, p1)) {
-				if (p1 < p2 || !is_skip)
-					elems.push_back(s.substr(p1, p2 - p1));
+				if (p1 < p2 || !is_skip) {
+					auto elem = s.substr(p1, p2 - p1);
+					Trim(elem);
+					if (!elem.empty() || !is_skip) {
+						elems.push_back(elem);
+					}
+				}
 				p2 += delim.size();
 				p1 = p2;
 			}
@@ -619,8 +659,13 @@ namespace ExString
 		}
 		else {
 			for (size_t p2 = s.find_first_of(delim); p2 != s.npos; p2 = s.find_first_of(delim, p1)) {
-				if (p1 < p2 || !is_skip)
-					elems.push_back(s.substr(p1, p2 - p1));
+				if (p1 < p2 || !is_skip) {
+					auto elem = s.substr(p1, p2 - p1);
+					Trim(elem);
+					if (!elem.empty() || !is_skip) {
+						elems.push_back(elem);
+					}
+				}
 				p2++;
 				p1 = p2;
 			}
@@ -629,38 +674,25 @@ namespace ExString
 		}
 		return elems;
 	}
+	std::vector<CString> Split(const CString& s, LPCTSTR delim = _T(","), bool is_skip = false) {
+		assert(s.IsEmpty() || delim);
 
-#pragma endregion
+		std::vector<CString> elems;
+		int p1 = 0;
+		for (int p2 = s.Find(delim); p2 != -1; p2 = s.Find(delim, p1)) {
+			if (p1 < p2 || !is_skip) {
+				auto elem = s.Mid(p1, p2 - p1).Trim();
+				if (!elem.IsEmpty() || !is_skip) {
+					elems.push_back(elem);
+				}
+			}
+			p2++;
+			p1 = p2;
+		}
+		if (p1 < s.GetLength())
+			elems.push_back(s.Mid(p1).Trim());
 
-#pragma region Trim
-	// trim from start (in place)
-	inline void LTrim(std::string& s, std::locale& loc = std::locale("")) {
-		auto f = [&](const char c) { return !std::isspace(c, loc); };
-		s.erase(s.begin(), std::find_if(s.begin(), s.end(), f));
-	}
-	inline void LTrim(std::wstring& s) {
-		auto f = [&](const wchar_t c) { return !std::iswspace(c); };
-		s.erase(s.begin(), std::find_if(s.begin(), s.end(), f));
-	}
-
-	// trim from end (in place)
-	inline void RTrim(std::string& s, std::locale& loc = std::locale("")) {
-		auto f = [&](const char c) { return !std::isspace(c, loc); };
-		s.erase(std::find_if(s.rbegin(), s.rend(), f).base(), s.end());
-	}
-	inline void RTrim(std::wstring& s/*, std::locale &loc = std::locale("")*/) {
-		auto f = [&](const wchar_t c) { return !std::iswspace(c); };
-		s.erase(std::find_if(s.rbegin(), s.rend(), f).base(), s.end());
-	}
-
-	// trim from both ends (in place)
-	inline void Trim(std::string& s, std::locale& loc = std::locale("")) {
-		LTrim(s, loc);
-		RTrim(s, loc);
-	}
-	inline void Trim(std::wstring& s/*, std::locale &loc = std::locale("")*/) {
-		LTrim(s);
-		RTrim(s);
+		return elems;
 	}
 #pragma endregion
 

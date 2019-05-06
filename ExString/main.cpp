@@ -245,7 +245,7 @@ int main()
 	}
 
 	std::wcout << L"\nSplit is_skip = false is_string = true \n";
-	std::wstring delim(L", ");
+	std::wstring delim(L",");
 	wss = Split(ws, delim);
 	for (auto sp : wss) {
 		std::wcout << sp << std::endl;
@@ -267,6 +267,18 @@ int main()
 	wss = Split(ws, delim, true, false);
 	for (auto sp : wss) {
 		std::wcout << sp << std::endl;
+	}
+
+	std::wcout << L"\nCString Split \n";
+	CString csp("a,b, c, d,, , g, h,i,");
+	auto css = Split(csp);
+	for (auto sp : css) {
+		std::wcout << (LPCWSTR)sp << std::endl;
+	}
+	std::wcout << L"\nCString Split empty skip \n";
+	css = Split(csp, _T(","), true);
+	for (auto sp : css) {
+		std::wcout << (LPCWSTR)sp << std::endl;
 	}
 
 	std::cout << "\nTrim" << std::endl;
