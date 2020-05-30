@@ -300,6 +300,10 @@ int main()
 	std::wcout << ws << std::endl;
 
 	SysFreeString(bs);
+
+	std::cout << ToString(1192296).c_str() << std::endl;
+	std::wcout << toWChar(2039811332).get() << std::endl;
+	OutputDebugString(ToCString(1234567890));
 	return 0;
 }
 

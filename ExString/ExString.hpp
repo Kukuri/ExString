@@ -11,6 +11,7 @@ unix 系は utf-8 が標準になっているのであまり必要性は感じない。
 #include <algorithm>
 #include <cwctype>
 #include <memory>
+#include <assert.h>
 #include <atlstr.h>
 #include <atlconv.h>
 #include <comutil.h>
@@ -91,6 +92,21 @@ namespace ExString
 	char* ToChar(const CComBSTR& str) {
 		return ToChar(CW2A(str));
 	}
+
+	char* ToChar(int i) {
+		size_t size = 0 < i ? 2 : 3;	//符号 + null + 一桁目
+		size += (size_t)std::log10(std::abs(i));
+		char* c = new char[size];
+		size = _snprintf_s(c, size, size, "%d", i);
+		return c;
+	}
+	char* ToChar(double d) {
+		size_t size = 24;	//符号 + 小数点 + 16桁 + e+308 + null
+		auto c = new char[size];
+		size = _snprintf_s(c, size, size, "%f", d);
+		return c;
+	}
+
 	/// <summary>コードページの変換</summary>
 	/// <param name="str">変換文字列</param>
 	/// <param name="inCP">変換前のコードページ</param>
@@ -138,6 +154,13 @@ namespace ExString
 	}
 	std::unique_ptr<char[]> toChar(const CComBSTR& str) {
 		return toChar(CW2A(str));
+	}
+
+	std::unique_ptr<char[]> toChar(int i) {
+		return std::unique_ptr<char[]>(ToChar(i));
+	}
+	std::unique_ptr<char[]> toChar(double d) {
+		return std::unique_ptr<char[]>(ToChar(d));
 	}
 #pragma endregion
 
@@ -202,6 +225,14 @@ namespace ExString
 	std::string ToString(const CComBSTR& str) {
 		return std::string(CW2A(str));
 	}
+
+	std::string ToString(int i) {
+		return std::to_string(i);
+	}
+	std::string ToString(double d) {
+		return std::to_string(d);
+	}
+
 	/// <summary>コードページの変換</summary>
 	/// <param name="str">変換文字列</param>
 	/// <param name="inCP">変換前のコードページ</param>
@@ -280,6 +311,20 @@ namespace ExString
 		return ToWChar((const wchar_t*)str);
 	}
 
+	wchar_t* ToWChar(int i) {
+		size_t size = 0 < i ? 2 : 3;	//符号 + null + 一桁目
+		size += (size_t)std::log10(std::abs(i));
+		wchar_t* c = new wchar_t[size];
+		size = _snwprintf_s(c, size, size, L"%d", i);
+		return c;
+	}
+	wchar_t* ToWChar(double d) {
+		size_t size = 24;	//符号 + 小数点 + 16桁 + e+308 + null
+		auto c = new wchar_t[size];
+		size = _snwprintf_s(c, size, size, L"%f", d);
+		return c;
+	}
+
 	std::unique_ptr<wchar_t[]>
 		toWChar(const char* str, UINT nCodePage = CP_ACP) {
 		return std::unique_ptr<wchar_t[]>(ToWChar(str, nCodePage));
@@ -308,6 +353,13 @@ namespace ExString
 	}
 	std::unique_ptr<wchar_t[]> toWChar(const CComBSTR& str) {
 		return toWChar((LPCWSTR)str, str.Length());
+	}
+
+	std::unique_ptr<wchar_t[]> toWChar(int i) {
+		return std::unique_ptr<wchar_t[]>(ToWChar(i));
+	}
+	std::unique_ptr<wchar_t[]> toWChar(double d) {
+		return std::unique_ptr<wchar_t[]>(ToWChar(d));
 	}
 #pragma endregion
 
@@ -352,6 +404,13 @@ namespace ExString
 		}
 
 		return vw;
+	}
+
+	std::wstring ToWString(int i) {
+		return std::to_wstring(i);
+	}
+	std::wstring ToWString(double d) {
+		return std::to_wstring(d);
 	}
 #pragma endregion
 
@@ -404,6 +463,20 @@ namespace ExString
 		return ToTChar((LPCTSTR)str, nCodePage);
 	}
 
+	TCHAR* ToTChar(int i) {
+		size_t size = 0 < i ? 2 : 3;	//符号 + null + 一桁目
+		size += (size_t)std::log10(std::abs(i));
+		auto* c = new TCHAR[size];
+		size = _sntprintf_s(c, size, size, _T("%d"), i);
+		return c;
+	}
+	TCHAR* ToTChar(double d) {
+		size_t size = 24;	//符号 + 小数点 + 16桁 + e+308 + null
+		auto c = new TCHAR[size];
+		size = _sntprintf_s(c, size, size, _T("%f"), d);
+		return c;
+	}
+
 	std::unique_ptr<TCHAR[]>
 		toTChar(const char* str, UINT nCodePage = CP_ACP) {
 		std::unique_ptr<TCHAR[]> tc(ToTChar(str, nCodePage));
@@ -429,6 +502,12 @@ namespace ExString
 		return toTChar((LPCTSTR)str, nCodePage);
 	}
 
+	std::unique_ptr<TCHAR[]> toTChar(int i) {
+		return std::unique_ptr<TCHAR[]>(ToTChar(i));
+	}
+	std::unique_ptr<TCHAR[]> toTChar(double d) {
+		return std::unique_ptr<TCHAR[]>(ToTChar(d));
+	}
 #pragma endregion
 
 #pragma region ToCString
@@ -460,6 +539,17 @@ namespace ExString
 	CString ToCString(const CComBSTR& str) {
 		return CString(str);
 	}
+
+	CString ToCString(int i) {
+		CString str;
+		str.Format(_T("%d"), i);
+		return str;
+	}
+	CString ToCString(double d) {
+		CString str;
+		str.Format(_T("%f"), d);
+		return str;
+	}
 #pragma endregion
 
 #pragma region BSTR 解放は SysFreeString で
@@ -489,6 +579,15 @@ namespace ExString
 	BSTR ToBSTR(const CComBSTR& str) {
 		return str.Copy();
 	}
+
+	BSTR ToBSTR(int i) {
+		auto ws = ToWString(i);
+		return ToBSTR(ws);
+	}
+	BSTR ToBSTR(double d) {
+		auto ws = ToWString(d);
+		return ToBSTR(ws);
+	}
 #pragma endregion
 
 #pragma region _bstr_t 
@@ -513,6 +612,15 @@ namespace ExString
 	_bstr_t To_bstr_t(const CComBSTR& str) {
 		return _bstr_t(str);
 	}
+
+	_bstr_t To_bstr_t(int i) {
+		auto str = ToWString(i);
+		return _bstr_t(str.c_str());
+	}
+	_bstr_t To_bstr_t(double d) {
+		auto str = ToWString(d);
+		return _bstr_t(str.c_str());
+	}
 #pragma endregion
 
 #pragma region CComBSTR  
@@ -536,6 +644,108 @@ namespace ExString
 	}
 	CComBSTR ToCComBSTR(const CComBSTR& str) {
 		return str;	//copy
+	}
+
+	CComBSTR ToCComBSTR(int i) {
+		auto str = ToWString(i);
+		return CComBSTR(str.c_str());
+	}
+	CComBSTR ToCComBSTR(double d) {
+		auto str = ToWString(d);
+		return CComBSTR(str.c_str());
+	}
+#pragma endregion
+
+#pragma region ToInt
+	int ToInt(const char* str) {
+		int val = atoi(str);
+		if (errno == ERANGE) {
+			throw std::overflow_error(str);
+		}
+		return val;
+	}
+	int ToInt(const wchar_t* str) {
+		int val = _wtoi(str);
+		if (errno == ERANGE) {
+			auto s = ToString(str);
+			throw std::overflow_error(s);
+		}
+		return val;
+	}
+	int ToInt(const std::string& str) {
+		return std::stoi(str);
+	}
+	int ToInt(const std::wstring& str) {
+		return std::stoi(str);
+	}
+	int ToInt(const BSTR str) {
+		int val = _wtoi(str);
+		if (errno == ERANGE) {
+			auto s = ToString(str);
+			throw std::overflow_error(s);
+		}
+		return val;
+	}
+	int ToInt(const _bstr_t& str) {
+		int val = atoi(str);
+		if (errno == ERANGE) {
+			throw std::overflow_error(str);
+		}
+		return val;
+	}
+	int ToInt(const CComBSTR& str) {
+		int val = _wtoi(str);
+		if (errno == ERANGE) {
+			auto s = ToString(str);
+			throw std::overflow_error(s);
+		}
+		return val;
+	}
+#pragma endregion
+#pragma region ToDouble
+	double ToDouble(const char* str) {
+		double val = atof(str);
+		if (errno == ERANGE) {
+			throw std::overflow_error(str);
+		}
+		return val;
+	}
+	double ToDouble(const wchar_t* str) {
+		double val = _wtof(str);
+		if (errno == ERANGE) {
+			auto s = ToString(str);
+			throw std::overflow_error(s);
+		}
+		return val;
+	}
+	double ToDouble(const std::string& str) {
+		return std::stod(str);
+	}
+	double ToDouble(const std::wstring& str) {
+		return std::stod(str);
+	}
+	double ToDouble(const BSTR str) {
+		double val = _wtof(str);
+		if (errno == ERANGE) {
+			auto s = ToString(str);
+			throw std::overflow_error(s);
+		}
+		return val;
+	}
+	double ToDouble(const _bstr_t& str) {
+		double val = atof(str);
+		if (errno == ERANGE) {
+			throw std::overflow_error(str);
+		}
+		return val;
+	}
+	double ToDouble(const CComBSTR& str) {
+		double val = _wtof(str);
+		if (errno == ERANGE) {
+			auto s = ToString(str);
+			throw std::overflow_error(s);
+		}
+		return val;
 	}
 #pragma endregion
 
